@@ -1,0 +1,20 @@
+apiVersion: harness.io/v1
+kind: Resource
+type: iacm-workspace
+identifier: {{ resource_name }}
+name: {{ resource_name }}
+spec:
+  type: iacm-workspace
+  lifecycle: production
+  owner: group:account/rbg
+metadata:
+  description: Harness Solutions Factory - managed IACM workspace resource.
+  annotations:
+    hsf.harness.io/is-drifted: "{{ is_resource_drifted }}"
+  links:
+    - title: IACM Workspace
+      url: {{ workspace_uri }}
+      icon: dashboard
+  tags:
+    - hsf
+    - iacm-workspace
