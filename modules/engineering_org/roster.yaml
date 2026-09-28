@@ -11,7 +11,7 @@
 #   - a member who is not a Harness user yet is reported as pending and joins
 #     automatically on the next run once their account exists.
 
-quarter: 2026-Q4
+quarter: 2027-Q1
 
 defaults:
   division: RBA
@@ -25,8 +25,8 @@ teams:
     owners:
       - krish.mehta@harness.io
     contributors:
+      # loren.yeung moved to Seller Tools this quarter.
       - krishmehta77@gmail.com
-      - loren.yeung@harness.io
     approvers:
       - krish.mehta@harness.io
 
@@ -40,13 +40,17 @@ teams:
     approvers:
       - loren.yeung@harness.io
 
-  - name: Buyer Identity
-    description: Buyer accounts, KYC and identity verification.
+  # Buyer Identity was folded into Seller Tools this quarter. Deleting it here
+  # is what removes its groups and its catalog entity.
+  - name: Seller Tools
+    description: Seller onboarding, listing tools and storefront management.
     division: RBA
     owners:
-      - krishmehta77@gmail.com
+      - loren.yeung@harness.io
     contributors:
       - krish.mehta@harness.io
       # Joins in this quarter's intake. Has no Harness account yet, so the
       # reconcile reports them as pending and adds them on a later run.
       - new.joiner@rbglobal.com
+    approvers:
+      - loren.yeung@harness.io
