@@ -74,8 +74,7 @@ variable "harness_url" {
 
 variable "harness_account_id" {
   type        = string
-  default     = "Qjf4MwsLRUes1w_efM3eIw"
-  description = "Account the catalog entity links point at"
+  description = "Account the catalog entity links point at. No default on purpose - a wrong account produces links that resolve but show the wrong catalog."
 }
 
 variable "workflow_identifier" {
