@@ -30,6 +30,17 @@ locals {
 
   entity_tags = length(var.entity_tags) > 0 ? var.entity_tags : compact([lower(var.org_id), "team"])
 
+  # The four Harness user groups below, as catalog entity refs. Harness mirrors
+  # every user group into the catalog and fills in that entity's membership
+  # itself, so these are the entities that publish who is on the team, and they
+  # become the team entity's children.
+  role_groups = [
+    harness_platform_usergroup.team.identifier,
+    harness_platform_usergroup.owners.identifier,
+    harness_platform_usergroup.contributors.identifier,
+    harness_platform_usergroup.approvers.identifier,
+  ]
+
   # The IACM workspace this team is provisioned by. The workflow names it
   # RESOURCE_NAME, i.e. Engineering_Team_ plus the name with spaces and dashes
   # turned into underscores, case preserved. Mirror that rule exactly so the
@@ -80,8 +91,18 @@ locals {
     identifier = local.entity_ident
     name       = var.name
 
-    # Same shape as the team entities already in the catalog: a parent division,
-    # leaders (the owners), the flattened membership, and a profile block.
+    # A parent division, the owners as leaders, the role groups as children, and
+    # a profile block.
+    #
+    # spec.members is deliberately absent. Harness already mirrors every Harness
+    # user group into the catalog as a group entity and derives that entity's
+    # relations.hasMember from the group's real membership, so the four groups
+    # below are where membership is published from. Restating the same people
+    # here would be a second copy that never converges: the API reorders
+    # spec.members on write, and the provider compares the YAML order-sensitively,
+    # so every later plan shows the same update on an entity nobody touched.
+    # Membership still flows from the roster - it flows through user_emails on the
+    # groups, which do converge.
     spec = merge(
       {
         profile = merge(
@@ -91,7 +112,7 @@ locals {
       },
       local.parent_group != "" ? { parent = local.parent_group } : {},
       length(var.owners) > 0 ? { leaders = [for m in var.owners : "user:account/${m}"] } : {},
-      length(local.all_members) > 0 ? { members = [for m in local.all_members : "user:account/${m}"] } : {},
+      { children = [for g in local.role_groups : "group:account/${g}"] },
     )
 
     metadata = {
