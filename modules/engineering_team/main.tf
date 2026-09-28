@@ -53,18 +53,20 @@ locals {
   })
 
   # urlencode() emits "+" for spaces; the IDP Create form expects %20.
-  edit_team_url = join("", [
+  edit_form_url = join("", [
     local.base_url,
     "/module/idp/create/templates/account.${var.harness_org}.${var.harness_project}/${var.workflow_identifier}",
     "?formData=${replace(urlencode(local.edit_form_data), "+", "%20")}",
   ])
+
+  edit_team_url = var.edit_url_override != "" ? var.edit_url_override : local.edit_form_url
 
   # Prefix is a variable so each deployment can namespace these under its own
   # domain without editing the module. Keys match the ones the hand-built team
   # entities already carry, so filters and scorecards keep working.
   entity_annotations = merge(
     {
-      "${var.annotation_prefix}provisioned-by" = "harness-iacm-engineering-team"
+      "${var.annotation_prefix}provisioned-by" = var.provisioned_by
     },
     var.org_id != "" ? { "${var.annotation_prefix}division" = var.org_id } : {},
     local.notification_email != "" ? { "${var.annotation_prefix}notification-email" = local.notification_email } : {},

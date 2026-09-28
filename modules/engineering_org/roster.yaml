@@ -1,0 +1,52 @@
+# Engineering roster - the source of truth for which teams exist and who is on
+# them. A quarterly reshuffle is a pull request against this file: add a team,
+# move a person between teams, drop a member, delete a team. One apply
+# reconciles all of it, removals included.
+#
+# Rules:
+#   - name is the identity of a team. Renaming a team creates a new one and
+#     destroys the old one, so rename deliberately.
+#   - a person may appear on as many teams and in as many roles as needed.
+#   - owners become the team's leaders in the catalog and its Owners group.
+#   - a member who is not a Harness user yet is reported as pending and joins
+#     automatically on the next run once their account exists.
+
+quarter: 2026-Q4
+
+defaults:
+  division: RBA
+  email_domain: rbglobal.com
+  slack_team_id: T031FET0K3J
+
+teams:
+  - name: Marketplace Search
+    description: Search, ranking and discovery for the marketplace storefront.
+    division: RBA
+    owners:
+      - krish.mehta@harness.io
+    contributors:
+      - krishmehta77@gmail.com
+      - loren.yeung@harness.io
+    approvers:
+      - krish.mehta@harness.io
+
+  - name: Settlement Platform
+    description: Post-auction settlement, payouts and the money ledger.
+    division: IA
+    owners:
+      - loren.yeung@harness.io
+    contributors:
+      - krish.mehta@harness.io
+    approvers:
+      - loren.yeung@harness.io
+
+  - name: Buyer Identity
+    description: Buyer accounts, KYC and identity verification.
+    division: RBA
+    owners:
+      - krishmehta77@gmail.com
+    contributors:
+      - krish.mehta@harness.io
+      # Joins in this quarter's intake. Has no Harness account yet, so the
+      # reconcile reports them as pending and adds them on a later run.
+      - new.joiner@rbglobal.com

@@ -100,3 +100,15 @@ variable "workspace_name" {
   default     = ""
   description = "IACM workspace backing this team. Empty mirrors the workflow's RESOURCE_NAME rule."
 }
+
+variable "provisioned_by" {
+  type        = string
+  default     = "harness-iacm-engineering-team"
+  description = "Value of the provisioned-by annotation. Identifies which flow owns this team, so a roster-managed team is distinguishable from a single-team one."
+}
+
+variable "edit_url_override" {
+  type        = string
+  default     = ""
+  description = "Replaces the Edit this Team link target. Roster-managed teams point at the roster file in git, because editing them through the single-team form would create a second Terraform state fighting over the same user groups."
+}
