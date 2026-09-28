@@ -26,7 +26,25 @@ variable "approvers" {
 variable "org_id" {
   type        = string
   default     = ""
-  description = "Division / business-unit tag, stored as an entity annotation - not a Harness scope identifier"
+  description = "Division / business-unit the team belongs to. Not a Harness scope identifier - it becomes the division annotation and, lower-cased, the parent group ref."
+}
+
+variable "parent_group" {
+  type        = string
+  default     = ""
+  description = "Entity ref of the parent division group, e.g. group:account/rba. Empty derives it from org_id."
+}
+
+variable "notification_email" {
+  type        = string
+  default     = ""
+  description = "Team notification address written to spec.profile.email. Empty derives it from the name plus email_domain."
+}
+
+variable "email_domain" {
+  type        = string
+  default     = ""
+  description = "Domain used to derive the team notification address when notification_email is not set, e.g. example.com"
 }
 
 variable "slack_team_id" {
@@ -74,8 +92,8 @@ variable "annotation_prefix" {
 
 variable "entity_tags" {
   type        = list(string)
-  default     = ["engineering-team", "iacm"]
-  description = "Tags applied to the Team catalog entity"
+  default     = []
+  description = "Tags applied to the Team catalog entity. Empty derives [<division>, team], matching the teams already in the catalog."
 }
 
 variable "workspace_name" {

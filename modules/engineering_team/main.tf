@@ -10,9 +10,25 @@ terraform {
 
 locals {
   ident       = lower(replace(replace(trimspace(var.name), "/[^a-zA-Z0-9]+/", "_"), "/^_+|_+$/", ""))
+  slug        = lower(replace(trimspace(var.name), "/[^a-zA-Z0-9]+/", "-"))
   all_members = distinct(concat(var.owners, var.contributors, var.approvers))
 
   entity_ident = "${local.ident}_team"
+
+  # Division the team rolls up into. The catalog already models divisions as
+  # account-scoped Group entities (group:account/rba, group:account/ia), so the
+  # division tag the form collects becomes a real parent relation, not just text.
+  parent_group = var.parent_group != "" ? var.parent_group : (
+    var.org_id != "" ? "group:account/${lower(var.org_id)}" : ""
+  )
+
+  # Team notification address. Explicit value wins; otherwise derive it from the
+  # name the same way the hand-built team entities do: lower-cased, dash-joined.
+  notification_email = var.notification_email != "" ? var.notification_email : (
+    var.email_domain != "" ? "${local.slug}@${var.email_domain}" : ""
+  )
+
+  entity_tags = length(var.entity_tags) > 0 ? var.entity_tags : compact([lower(var.org_id), "team"])
 
   # The IACM workspace this team is provisioned by. The workflow names it
   # RESOURCE_NAME, i.e. Engineering_Team_ plus the name with spaces and dashes
@@ -44,12 +60,16 @@ locals {
   ])
 
   # Prefix is a variable so each deployment can namespace these under its own
-  # domain without editing the module.
-  entity_annotations = {
-    "${var.annotation_prefix}org-id"         = var.org_id
-    "${var.annotation_prefix}slack-team-id"  = var.slack_team_id
-    "${var.annotation_prefix}provisioned-by" = "harness-iacm-engineering-team"
-  }
+  # domain without editing the module. Keys match the ones the hand-built team
+  # entities already carry, so filters and scorecards keep working.
+  entity_annotations = merge(
+    {
+      "${var.annotation_prefix}provisioned-by" = "harness-iacm-engineering-team"
+    },
+    var.org_id != "" ? { "${var.annotation_prefix}division" = var.org_id } : {},
+    local.notification_email != "" ? { "${var.annotation_prefix}notification-email" = local.notification_email } : {},
+    var.slack_team_id != "" ? { "${var.annotation_prefix}slack-team-id" = var.slack_team_id } : {},
+  )
 
   entity_yaml = yamlencode({
     apiVersion = "harness.io/v1"
@@ -58,11 +78,18 @@ locals {
     identifier = local.entity_ident
     name       = var.name
 
+    # Same shape as the team entities already in the catalog: a parent division,
+    # leaders (the owners), the flattened membership, and a profile block.
     spec = merge(
-      { profile = { displayName = var.name } },
-      length(local.all_members) > 0
-      ? { members = [for m in local.all_members : "user:account/${m}"] }
-      : {},
+      {
+        profile = merge(
+          { displayName = var.name },
+          local.notification_email != "" ? { email = local.notification_email } : {},
+        )
+      },
+      local.parent_group != "" ? { parent = local.parent_group } : {},
+      length(var.owners) > 0 ? { leaders = [for m in var.owners : "user:account/${m}"] } : {},
+      length(local.all_members) > 0 ? { members = [for m in local.all_members : "user:account/${m}"] } : {},
     )
 
     metadata = {
@@ -80,7 +107,7 @@ locals {
           icon  = "edit"
         },
       ]
-      tags = var.entity_tags
+      tags = local.entity_tags
     }
   })
 }

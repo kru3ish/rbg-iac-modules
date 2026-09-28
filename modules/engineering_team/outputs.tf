@@ -29,3 +29,17 @@ output "edit_team_url" {
 output "workspace_url" {
   value = local.workspace_url
 }
+
+output "parent_group_ref" {
+  value       = local.parent_group
+  description = "Division group this team rolls up into, empty when no division was given"
+}
+
+output "notification_email" {
+  value = local.notification_email
+}
+
+output "entity_yaml" {
+  value       = local.entity_yaml
+  description = "The exact Team entity YAML this module PUTs, handy for reading back in the apply log"
+}
